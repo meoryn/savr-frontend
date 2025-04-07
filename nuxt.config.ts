@@ -7,7 +7,11 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@nuxt/ui',
     '@nuxt/eslint',
-    '@nuxt/test-utils'
+    '@nuxt/test-utils',
+    '@nuxtjs/supabase'
   ],
-  css: ['~/assets/css/main.css']
+  css: ['~/assets/css/main.css'],
+  supabase: {
+    redirect: false,
+  }
 })

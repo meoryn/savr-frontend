@@ -1,6 +1,6 @@
 <template>
 
-        <div class="flex flex-col items-center justify-center h-">
+        <div class="flex flex-col items-center justify-center flex-1">
             <div class="text-center">
                 <h2 class="text-8xl pb-2">
                     Welcome to S<span class="text-green-300">avr</span>
@@ -18,5 +18,3 @@
             </div>
         </div>
 </template>
-
-<script setup lang="ts"></script>
