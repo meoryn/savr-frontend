@@ -47,6 +47,11 @@ import { string, object, ref as YupRef, type InferType } from 'yup';
 import type { FormSubmitEvent } from '@nuxt/ui';
 
 const user = useSupabaseUser();
+
+if(user.value) {
+    navigateTo('/');
+}
+
 const state = reactive({
     email: '',
     password: '',

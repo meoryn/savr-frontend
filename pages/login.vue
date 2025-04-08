@@ -37,6 +37,11 @@
 
 <script setup lang="ts">
 const user = useSupabaseUser();
+
+if(user.value) {
+    navigateTo('/');
+}
+
 const state = reactive({
     email: '',
     password: '',
