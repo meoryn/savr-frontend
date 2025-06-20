@@ -8,7 +8,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/eslint',
     '@nuxt/test-utils',
-    '@nuxtjs/supabase'
+    '@nuxtjs/supabase',
+    'nuxt-charts'
   ],
   css: ['~/assets/css/main.css'],
   supabase: {
