@@ -7,7 +7,6 @@
             :y-axis="['income', 'expense']"
             :group-padding="0"
             :bar-padding="0.2"
-            :x-num-ticks="1"
             :radius="4"
             :x-formatter="xFormatter"
             :legend-position="LegendPosition.Top"
