@@ -14,10 +14,12 @@
 
 <script setup lang="ts">
 
-const user = useSupabaseUser();
+const store = useUserStore();
+
+//TODO: Create interfaces for all backend responses
 
 
-if (!user.value) {
+if (store.user && store.jwt) {
     navigateTo('/');
 }
 

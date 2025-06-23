@@ -5,7 +5,7 @@
                 Savr
             </NuxtLink>
         </div>
-        <div v-if="user">
+        <div v-if="store.user && store.jwt" class="flex flex-row items-center gap-4">
             <div class="flex flex-row gap-4">
                 <NuxtLink class="text-xl font-bold cursor-pointer hover:text-green-300" to="/dashboard">Dashboard</NuxtLink>
                 <NuxtLink class="text-xl font-bold cursor-pointer hover:text-green-300" to="/profile">Profile</NuxtLink>
@@ -23,18 +23,14 @@
 
 <script setup lang="ts">
 
-const user = useSupabaseUser();
-
-const supabase = useSupabaseClient();
+const store = useUserStore();
 
 const logoutUser = async () => {
-    try {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-        navigateTo('/');
-    } catch (error) {
-        console.error('Error logging out:', error);
-    }
+    //TODO:: implement logout endpoint when ready to use
+
+    store.user = {};
+    store.jwt = '';
+    store.refreshToken = '';
 };
 
 </script>

@@ -10,10 +10,7 @@
                 @submit="loginUser"
             >
                 <UFormField label="Email" name="email">
-                    <UInput
-                        v-model="state.email"
-                        class="0 rounded-lg w-full"
-                    />
+                    <UInput v-model="state.email" class="0 rounded-lg w-full" />
                 </UFormField>
                 <UFormField label="Password" name="password">
                     <UInput
@@ -46,11 +43,13 @@
 import { string, object, ref as YupRef, type InferType } from 'yup';
 import type { FormSubmitEvent } from '@nuxt/ui';
 
+const config = useRuntimeConfig();
+
 const user = useSupabaseUser();
 
-if(user.value) {
-    navigateTo('/');
-}
+// if(localStorage.getItem('jwt')) {
+//     navigateTo('/');
+// }
 
 const state = reactive({
     email: '',
@@ -74,20 +73,26 @@ type Schema = InferType<typeof schema>;
 const toast = useToast();
 
 const loginUser = async (event: FormSubmitEvent<Schema>) => {
-    const { data, error } = await supabase.auth.signUp({
-        email: event.data.email,
-        password: event.data.password,
+    // const { data, error } = await supabase.auth.signUp({
+    //     email: event.data.email,
+    //     password: event.data.password,
+    // });
+
+    const data = await $fetch(`${config.public.apiBaseUrl}/register`, {
+        method: 'POST',
+        body: {
+            email: event.data.email,
+            password: event.data.password,
+        },
     });
 
-    if (error) {
-        toast.add({
-            title: 'Error',
-            description: error.message,
-            color: 'error',
-        });
-    }
+    console.log(data);
 
     if (data) {
+        console.log(data);
+        localStorage.setItem('jwt', data.session.access_token);
+        localStorage.setItem('refresh_token', data.session.refresh_token);
+
         toast.add({
             title: 'Success',
             description: 'User created successfully',
@@ -98,5 +103,25 @@ const loginUser = async (event: FormSubmitEvent<Schema>) => {
             navigateTo('/');
         }, 2000);
     }
+
+    // if (error) {
+    //     toast.add({
+    //         title: 'Error',
+    //         description: error.message,
+    //         color: 'error',
+    //     });
+    // }
+
+    // if (data) {
+    //     toast.add({
+    //         title: 'Success',
+    //         description: 'User created successfully',
+    //         color: 'success',
+    //     });
+
+    //     setTimeout(() => {
+    //         navigateTo('/');
+    //     }, 2000);
+    // }
 };
 </script>

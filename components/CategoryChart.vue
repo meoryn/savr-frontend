@@ -30,6 +30,15 @@ const colors = [
     '#10b981', // Emerald
 ];
 
+//Body für table endpoint 
+
+{
+    jwt: string;
+    selectedColumns?: ['transaction_date', 'category_name', 'sum', 'type'],
+    userId: string;
+    tableName: 'category' | 'transaction' | 'account';
+
+}
 
 const {data: categories} = await supabase
     .from('category')

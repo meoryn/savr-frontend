@@ -9,10 +9,18 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/test-utils',
     '@nuxtjs/supabase',
-    'nuxt-charts'
+    'nuxt-charts',
+    '@pinia/nuxt',
+    'pinia-plugin-persistedstate/nuxt',
   ],
   css: ['~/assets/css/main.css'],
   supabase: {
     redirect: false,
+  },
+
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.API_URL,
+    }
   }
 })
