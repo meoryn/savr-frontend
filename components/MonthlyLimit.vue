@@ -1,16 +1,31 @@
 <template>
-    <div class="flex flex-col items-center justify-center p-4 shadow-lg border-1 border-gray-100 rounded-2xl w-full">
+    <div
+        class="flex flex-col items-center justify-around p-4 shadow-lg border-1 border-gray-100 rounded-2xl w-full"
+    >
         <h2 class="text-xl font-bold mb-4">Monatliches Limit</h2>
-          <USelect v-model="selectedCategory" :items="selectableCategories" class="w-full" />
-          <p v-if="monthlySpending && monthlyLimit" class="py-4 text-xl font-bold">
-            <span :class="monthlySpending > monthlyLimit ? 'text-red-500' : 'text-green-500'">{{monthlySpending}}</span> / {{ monthlyLimit }}
-          </p>
-          <p v-else class="py-4 text-xl font-bold">
-            0 / 0
-          </p>
+
+        <p
+            v-if="monthlySpending && monthlyLimit"
+            class="py-4 text-3xl font-bold"
+        >
+            <span
+                :class="
+                    monthlySpending > monthlyLimit
+                        ? 'text-red-500'
+                        : 'text-green-500'
+                "
+                >{{ monthlySpending }}</span
+            >
+            / {{ monthlyLimit }}
+        </p>
+        <p v-else class="py-4 text-3xl font-bold">0 / 0</p>
+        <USelect
+            v-model="selectedCategory"
+            :items="selectableCategories"
+            class="w-full"
+        />
     </div>
 </template>
-
 
 <script setup lang="ts">
 import type { Category } from '~/interfaces/tables/category';
@@ -42,12 +57,13 @@ const selectableCategories = computed(() => {
     return [];
 });
 
-
-const selectedCategory = ref<string | undefined>(selectableCategories.value[0]?.value);
+const selectedCategory = ref<string | undefined>(
+    selectableCategories.value[0]?.value
+);
 
 console.log('selectedCategory', selectedCategory.value);
 
-const { data: monthlyLimit, error: monthlyLimitError} = await useFetch<number>(
+const { data: monthlyLimit, error: monthlyLimitError } = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/getMonthlyLimit`,
     {
         method: 'POST',
@@ -62,13 +78,11 @@ const { data: monthlyLimit, error: monthlyLimitError} = await useFetch<number>(
     }
 );
 
-if(monthlyLimitError.value) {
+if (monthlyLimitError.value) {
     console.error('Error fetching monthly limit:', monthlyLimitError.value);
 }
 
-
 console.log('monthlyLimit', monthlyLimit.value);
-
 
 const { data: monthlySpending } = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/monthlySpendings`,
@@ -86,5 +100,4 @@ const { data: monthlySpending } = await useFetch<number>(
 );
 
 console.log('monthlySpending', monthlySpending.value);
-
 </script>
