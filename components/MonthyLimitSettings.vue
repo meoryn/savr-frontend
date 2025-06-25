@@ -58,7 +58,7 @@ const { data: categories } = await useFetch<Category[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            user_id: store.user.id,
+            user_id: store.user?.id,
             tableName: 'category',
         },
     }
@@ -68,13 +68,15 @@ const selectableCategories = computed(() => {
     if (categories.value) {
         return categories.value.map((item) => ({
             label: item.name,
-            value: item.category_id,
+            value: item.name,
         }));    
     }
     return [];
 });
 
-const { data: monthlyLimit, error: monthlyLimitError} = await useFetch<{maximum: number}[]>(
+const selectedCategory = ref<string | undefined>(selectableCategories.value[0]?.value);
+
+const { data: monthlyLimit, error: monthlyLimitError} = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/getMonthlyLimit`,
     {
         method: 'POST',
@@ -83,8 +85,8 @@ const { data: monthlyLimit, error: monthlyLimitError} = await useFetch<{maximum:
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            user_id: store.user.id,
-            category_id: selectableCategories.value[0]?.value,
+            user_id: store.user?.id,
+            category_name: selectedCategory,
         },
     }
 );
@@ -93,12 +95,8 @@ if(monthlyLimitError.value) {
     console.error('Error fetching monthly limit:', monthlyLimitError.value);
 }
 
-const selectedAmount = ref(monthlyLimit.value ? monthlyLimit.value[0].maximum : 0);
+const selectedAmount = ref(monthlyLimit.value ? monthlyLimit.value : 0);
 
-console.log(monthlyLimit.value);
-
-
-const selectedCategory = ref<string | undefined>(selectableCategories.value[0]?.value);
 
 const editLimit = async () => {
 
@@ -109,13 +107,14 @@ const editLimit = async () => {
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            user_id: store.user.id,
-            category_id: selectedCategory.value,
+            user_id: store.user?.id,
+            category_name: selectedCategory.value,
             maximum: selectedAmount.value,
         },
     });
 
     if(response) {
+        //Add toast here
         console.log('Transaction added successfully');
         isOpen.value = false; // Close the modal after adding the transaction
     } else {
