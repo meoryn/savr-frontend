@@ -1,6 +1,6 @@
 <template>
     <UContainer class="p-5 grid grid-cols-12 gap-8">
-        <div class="col-span-6 grid grid-cols-2 gap-4">
+        <div class="col-span-6 grid grid-cols-2 gap-4 content-center">
             <AccountBalance class="col-span-1"/>
             <MonthlyLimit class="col-span-1"/>
             <MonthyLimitSettings class="col-span-2"/>
