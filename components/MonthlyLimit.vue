@@ -5,7 +5,7 @@
         <h2 class="text-xl font-bold mb-4">Monatliches Limit</h2>
 
         <p
-            v-if="monthlySpending && monthlyLimit"
+        v-if="monthlyLimit && monthlySpending"
             class="py-4 text-3xl font-bold"
         >
             <span
@@ -18,7 +18,6 @@
             >
             / {{ monthlyLimit }}
         </p>
-        <p v-else class="py-4 text-3xl font-bold">0 / 0</p>
         <USelect
             v-model="selectedCategory"
             :items="selectableCategories"
@@ -41,7 +40,7 @@ const { data: categories } = await useFetch<Category[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            user_id: store.user.id,
+            user_id: store.user?.id,
             tableName: 'category',
         },
     }
@@ -61,8 +60,6 @@ const selectedCategory = ref<string | undefined>(
     selectableCategories.value[0]?.value
 );
 
-console.log('selectedCategory', selectedCategory.value);
-
 const { data: monthlyLimit, error: monthlyLimitError } = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/getMonthlyLimit`,
     {
@@ -72,7 +69,7 @@ const { data: monthlyLimit, error: monthlyLimitError } = await useFetch<number>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            user_id: store.user.id,
+            user_id: store.user?.id,
             category_name: selectedCategory,
         },
     }
@@ -82,7 +79,6 @@ if (monthlyLimitError.value) {
     console.error('Error fetching monthly limit:', monthlyLimitError.value);
 }
 
-console.log('monthlyLimit', monthlyLimit.value);
 
 const { data: monthlySpending } = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/monthlySpendings`,
@@ -93,11 +89,10 @@ const { data: monthlySpending } = await useFetch<number>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            user_id: store.user.id,
+            user_id: store.user?.id,
             category_name: selectedCategory,
         },
     }
 );
 
-console.log('monthlySpending', monthlySpending.value);
 </script>
