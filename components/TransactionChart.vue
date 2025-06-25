@@ -9,7 +9,7 @@
             :bar-padding="0.2"
             :radius="4"
             :x-formatter="xFormatter"
-            :x-num-ticks="6"
+            :x-num-ticks="calcSavings.length > 13 ? 12 : calcSavings.length - 1"
             :legend-position="LegendPosition.Top"
             :hide-legend="false"
             :y-grid-line="true"
