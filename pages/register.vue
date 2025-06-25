@@ -42,6 +42,7 @@
 <script setup lang="ts">
 import { string, object, ref as YupRef, type InferType } from 'yup';
 import type { FormSubmitEvent } from '@nuxt/ui';
+import type { AuthenticatedUser } from '~/interfaces/auth/authenticatedUser';
 
 const config = useRuntimeConfig();
 const store = useUserStore();
@@ -71,7 +72,7 @@ const toast = useToast();
 
 const loginUser = async (event: FormSubmitEvent<Schema>) => {
     try {
-        const data = await $fetch(`${config.public.apiBaseUrl}/register`, {
+        const data = await $fetch<AuthenticatedUser>(`${config.public.apiBaseUrl}/register`, {
             method: 'POST',
             body: {
                 email: event.data.email,
@@ -80,9 +81,11 @@ const loginUser = async (event: FormSubmitEvent<Schema>) => {
         });
 
         if (data) {
-            console.log(data);
-            localStorage.setItem('jwt', data.session.access_token);
-            localStorage.setItem('refresh_token', data.session.refresh_token);
+
+            store.user = data.user;
+            store.jwt = data.session.access_token;
+            store.refreshToken = data.session.refresh_token;
+
 
             toast.add({
                 title: 'Success',

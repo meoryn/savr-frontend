@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '~/stores/userStore';
+import type { AuthenticatedUser } from '~/interfaces/auth/authenticatedUser.ts';
 
 const store = useUserStore();
 
@@ -46,38 +46,34 @@ const state = reactive({
 const toast = useToast();
 
 const loginUser = async () => {
-
-
-    const data = await $fetch(`${config.public.apiBaseUrl}/login`, {
-        method: 'POST',
-        body: {
-            email: state.email,
-            password: state.password,
-        },
-    });
-
-    if (data) {
-        console.log(data);
-        store.user = data.user;
-        store.jwt = data.session.access_token;
-        store.refreshToken = data.session.refresh_token;
-
-        toast.add({
-            title: 'Success',
-            description: 'Login successful',
-            color: 'success',
+    try {
+        const data = await $fetch<AuthenticatedUser>(`${config.public.apiBaseUrl}/login`, {
+            method: 'POST',
+            body: {
+                email: state.email,
+                password: state.password,
+            },
         });
-        navigateTo('/');
+
+        if (data) {
+            console.log(data);
+            store.user = data.user;
+            store.jwt = data.session.access_token;
+            store.refreshToken = data.session.refresh_token;
+
+            toast.add({
+                title: 'Success',
+                description: 'Login successful',
+                color: 'success',
+            });
+            navigateTo('/');
+        }
+    } catch (error) {
+        toast.add({
+            title: 'Error',
+            description: error as string,
+            color: 'error',
+        });
     }
-
-
-    //TODO:: Add Error Handling back in
-    // if (error) {
-    //     toast.add({
-    //         title: 'Error',
-    //         description: error.message,
-    //         color: 'error',
-    //     })
-    // }
 };
 </script>
