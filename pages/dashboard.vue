@@ -29,25 +29,6 @@ const store = useUserStore();
 
 //TODO: Create interfaces for all backend responses
 
-const { data: expenses, error } = await useFetch(
-    `${useRuntimeConfig().public.apiBaseUrl}/expenses`,
-    {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${store.jwt}`,
-            'x-refresh-token': store.refreshToken,
-        },
-        body: {
-            userId: store.user.id,
-            category_name: 'Testkategorie',
-        },
-    }
-);
-
-console.log(expenses.value);
-
-console.log(error);
-
 if (!(store.user && store.jwt)) {
     navigateTo('/');
 }
