@@ -30,8 +30,6 @@
 <script setup lang="ts">
 import { useUserStore } from '~/stores/userStore';
 
-const user = useSupabaseUser();
-
 const store = useUserStore();
 
 const config = useRuntimeConfig();
@@ -45,15 +43,10 @@ const state = reactive({
     password: '',
 });
 
-const supabase = useSupabaseClient();
-
 const toast = useToast();
 
 const loginUser = async () => {
-    // const { data, error } = await supabase.auth.signInWithPassword({
-    //     email: state.email,
-    //     password: state.password,
-    // });
+
 
     const data = await $fetch(`${config.public.apiBaseUrl}/login`, {
         method: 'POST',
