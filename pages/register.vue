@@ -44,19 +44,16 @@ import { string, object, ref as YupRef, type InferType } from 'yup';
 import type { FormSubmitEvent } from '@nuxt/ui';
 
 const config = useRuntimeConfig();
-
-const user = useSupabaseUser();
-
-// if(localStorage.getItem('jwt')) {
-//     navigateTo('/');
-// }
+const store = useUserStore();
+if (store.user && store.jwt) {
+    navigateTo('/');
+}
 
 const state = reactive({
     email: '',
     password: '',
     repeatPassword: '',
 });
-const supabase = useSupabaseClient();
 
 const schema = object({
     email: string().email('Invalid email').required('Email is required'),
@@ -73,55 +70,36 @@ type Schema = InferType<typeof schema>;
 const toast = useToast();
 
 const loginUser = async (event: FormSubmitEvent<Schema>) => {
-    // const { data, error } = await supabase.auth.signUp({
-    //     email: event.data.email,
-    //     password: event.data.password,
-    // });
-
-    const data = await $fetch(`${config.public.apiBaseUrl}/register`, {
-        method: 'POST',
-        body: {
-            email: event.data.email,
-            password: event.data.password,
-        },
-    });
-
-    console.log(data);
-
-    if (data) {
-        console.log(data);
-        localStorage.setItem('jwt', data.session.access_token);
-        localStorage.setItem('refresh_token', data.session.refresh_token);
-
-        toast.add({
-            title: 'Success',
-            description: 'User created successfully',
-            color: 'success',
+    try {
+        const data = await $fetch(`${config.public.apiBaseUrl}/register`, {
+            method: 'POST',
+            body: {
+                email: event.data.email,
+                password: event.data.password,
+            },
         });
 
-        setTimeout(() => {
-            navigateTo('/');
-        }, 2000);
+        if (data) {
+            console.log(data);
+            localStorage.setItem('jwt', data.session.access_token);
+            localStorage.setItem('refresh_token', data.session.refresh_token);
+
+            toast.add({
+                title: 'Success',
+                description: 'User created successfully',
+                color: 'success',
+            });
+
+            setTimeout(() => {
+                navigateTo('/');
+            }, 2000);
+        }
+    } catch (error) {
+        toast.add({
+            title: 'Error',
+            description: error as string,
+            color: 'error',
+        });
     }
-
-    // if (error) {
-    //     toast.add({
-    //         title: 'Error',
-    //         description: error.message,
-    //         color: 'error',
-    //     });
-    // }
-
-    // if (data) {
-    //     toast.add({
-    //         title: 'Success',
-    //         description: 'User created successfully',
-    //         color: 'success',
-    //     });
-
-    //     setTimeout(() => {
-    //         navigateTo('/');
-    //     }, 2000);
-    // }
 };
 </script>
