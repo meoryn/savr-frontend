@@ -129,7 +129,7 @@ const addTransaction = async () => {
                 'x-refresh-token': store.refreshToken,
             },
             body: {
-                user_id: store.user.id,
+                user_id: store.user?.id,
                 category_id: selectedCategory.value,
                 amount: selectedAmount.value,
                 date: pickedDate.value,

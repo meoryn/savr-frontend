@@ -44,7 +44,7 @@ const { data: availableMonths } = await useFetch<{transaction_date: string}[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            user_id: store.user.id,
+            user_id: store.user?.id,
         },
     }
 );
@@ -68,7 +68,7 @@ const { data: categoriesedTransactions } = await useFetch<MonthlyReportEntry[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            userId: store.user.id,
+            userId: store.user?.id,
         },
     }
 );
@@ -136,8 +136,6 @@ const computedPercentages = computed(() => {
     }
     return [];
 });
-
-console.log(computedPercentages.value);
 
 const totalSpent = computed(() => {
     return computedPercentages.value.reduce((acc, item) => acc + item.total, 0);

@@ -38,7 +38,7 @@ const { data: usedCategories } = await useFetch<{ category_name: string }[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            user_id: store.user.id,
+            user_id: store.user?.id,
             type: 'expense',
         },
     }
@@ -61,7 +61,6 @@ const selectedCategory = ref<string | undefined>(fetchedCategories.value[0].valu
 watch(selectedCategory, (newValue) => {
     if (newValue) {
         categories.value.expense.name = newValue;
-        console.log(categories);
     }
 }, { immediate: true });
 
@@ -75,7 +74,7 @@ const { data: expenses, error } = await useFetch<MonthlyReportEntry[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            userId: store.user.id,
+            userId: store.user?.id,
             category_name: selectedCategory,
         },
     }

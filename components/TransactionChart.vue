@@ -31,7 +31,7 @@ const {data: categoriesedTransactions} = await useFetch<MonthlyReportEntry[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            userId: store.user.id,
+            userId: store.user?.id,
         },
     }
 );
@@ -71,6 +71,4 @@ const calcSavings = computed(() => {
 
     return [];
 });
-
-console.log(calcSavings.value.length);
 </script>
