@@ -4,5 +4,5 @@ export interface Transaction {
     category_id: string;
     date: string;
     type: string;
-    
+    user_id: string;
 }

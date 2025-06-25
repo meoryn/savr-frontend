@@ -9,6 +9,7 @@
             :bar-padding="0.2"
             :radius="4"
             :x-formatter="xFormatter"
+            :x-num-ticks="6"
             :legend-position="LegendPosition.Top"
             :hide-legend="false"
             :y-grid-line="true"
@@ -17,22 +18,23 @@
 </template>
 
 <script setup lang="ts">
-import type { Database } from '~/types/supabase';
+import type { MonthlyReportEntry } from '~/interfaces/tables/monthlyReportEntry';
+const store = useUserStore();
 
-const user = useSupabaseUser();
-const supabase = useSupabaseClient<Database>();
 
-const accountData = await supabase
-    .from('account')
-    .select('*')
-    .eq('user_id', user!.value!.id);
-
-const testData = await supabase
-    .from('monthly_report')
-    .select('sum, type, transaction_date, category_name')
-    .eq('account_id', accountData.data![0].account_id);
-
-console.log(testData.data);
+const {data: categoriesedTransactions} = await useFetch<MonthlyReportEntry[]>(
+    `${useRuntimeConfig().public.apiBaseUrl}/monthlyReport`,
+    {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${store.jwt}`,
+            'x-refresh-token': store.refreshToken,
+        },
+        body: {
+            userId: store.user.id,
+        },
+    }
+);
 
 const RevenueCategoriesMultple = {
     income: { name: 'Income', color: '#3b82f6' },
@@ -40,10 +42,11 @@ const RevenueCategoriesMultple = {
 };
 
 const xFormatter = (i: number): string => `${calcSavings.value[i]?.month}`;
-const yFormatter = (i: number) => i;
+// const yFormatter = (i: number) => i;
 
 const calcSavings = computed(() => {
-    const savings = testData.data.reduce((acc, item) => {
+    if(categoriesedTransactions.value) {
+        const savings = categoriesedTransactions.value.reduce((acc, item) => {
         if (!acc.find((el) => el.month === item.transaction_date)) {
             acc.push({
                 month: item.transaction_date,
@@ -62,8 +65,11 @@ const calcSavings = computed(() => {
             return acc;
         }
         return acc;
-    }, []);
+    }, [] as {month: string, income: number, expense: number}[]);
     return savings;
+    }
+
+    return [];
 });
 
 console.log(calcSavings.value.length);

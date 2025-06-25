@@ -18,3 +18,22 @@
             </div>
         </div>
 </template>
+
+
+<script setup lang="ts">
+
+const store = useUserStore();
+
+const { data: transaction, error} = await useFetch(`${useRuntimeConfig().public.apiBaseUrl}/table`, {
+    method: 'POST',
+    headers: {
+        Authorization: `Bearer ${store.jwt}`,
+        'x-refresh-token': store.refreshToken,
+    },
+    body: {
+        tableName: 'transaction',
+    },
+});
+
+console.log(transaction.value);
+</script>

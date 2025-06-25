@@ -1,6 +1,11 @@
 <template>
+   <div class="flex flex-col items-center justify-center gap-8">
+     <div class="flex items-center gap-4">
+        <span class="text-md font-bold">Ausgewählter Monat:</span>
+        <USelect v-model="selectedMonth" :items="selectableMonths"/>
+     </div>
     <DonutChart
-        :data="computedPercentages"
+        :data="computedPercentages.map((item) => item.total)"
         :height="300"
         :radius="0"
         :type="'full'"
@@ -11,13 +16,13 @@
             <div class="text-(--ui-text-muted)">Totally spent</div>
         </div>
     </DonutChart>
+   </div>
 </template>
 
 <script setup lang="ts">
-import type { Database } from '~/types/supabase';
+import type { MonthlyReportEntry } from '~/interfaces/tables/monthlyReportEntry';
 
-const user = useSupabaseUser();
-const supabase = useSupabaseClient<Database>();
+const store = useUserStore();
 const selectedMonth = ref(new Date().toISOString().slice(0, 7)); // YYYY-MM format
 const colors = [
     '#3b82f6', // Blue
@@ -30,87 +35,112 @@ const colors = [
     '#10b981', // Emerald
 ];
 
-//Body für table endpoint 
+const { data: availableMonths } = await useFetch<{transaction_date: string}[]>(
+    `${useRuntimeConfig().public.apiBaseUrl}/availableMonths`,
+    {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${store.jwt}`,
+            'x-refresh-token': store.refreshToken,
+        },
+        body: {
+            user_id: store.user.id,
+        },
+    }
+);
 
-{
-    jwt: string;
-    selectedColumns?: ['transaction_date', 'category_name', 'sum', 'type'],
-    userId: string;
-    tableName: 'category' | 'transaction' | 'account';
+const selectableMonths = computed(() => {
+    if (availableMonths.value) {
+        return availableMonths.value.map((month) => ({
+            label: month.transaction_date,
+            value: month.transaction_date,
+        }));
+    }
+    return [];
+});
 
-}
-
-const {data: categories} = await supabase
-    .from('category')
-    .select('name');
-
-console.log(categories);
-
-
-
-
-const accountData = await supabase
-    .from('account')
-    .select('*')
-    .eq('user_id', user!.value!.id);
-
-const testData = await supabase
-    .from('monthly_report')
-    .select('sum, type, transaction_date, category_name')
-    .eq('account_id', accountData.data![0].account_id);
-
-console.log(testData.data);
-
-//TODO: Filter out duplicates and select 
-
-const {data: months} = await supabase.from('monthly_report')
-    .select('transaction_date')
-    .eq('account_id', accountData.data![0].account_id)
-    .order('transaction_date', { ascending: true });
-
-console.log(months);
+const { data: categoriesedTransactions } = await useFetch<MonthlyReportEntry[]>(
+    `${useRuntimeConfig().public.apiBaseUrl}/monthlyReport`,
+    {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${store.jwt}`,
+            'x-refresh-token': store.refreshToken,
+        },
+        body: {
+            userId: store.user.id,
+        },
+    }
+);
 
 const categoryLabels = computed(() => {
-    return categories.map((item, index) => ({
-        name: item.name,
-        color: colors[index % colors.length], // Cycle through colors
-    }));
+    if (computedPercentages.value) {
+        return computedPercentages.value
+            .map((item, index) => ({
+                name: item.category_name,
+                color: colors[index % colors.length], // Cycle through colors
+            }))
+            .sort((a, b) => {
+                if (a.name < b.name) {
+                    return -1;
+                }
+                if (a.name > b.name) {
+                    return 1;
+                }
+                return 0;
+            });
+    }
+    return [];
 });
 
 const computedPercentages = computed(() => {
-    const percentagesPerCategory = testData.data.reduce((acc, item) => {
-        if (!acc.find((el) => el.category_name === item.category_name)) {
-            acc.push({
-                category_name: item.category_name,
-                total: 0,
-            });
-        }
+    if (categoriesedTransactions.value) {
+        const percentagesPerCategory = categoriesedTransactions.value.reduce(
+            (acc, item) => {
 
-        const index = acc.findIndex(
-            (el) => el.category_name === item.category_name
+
+                if(item.transaction_date !== selectedMonth.value || item.type === 'income') {
+                    return acc; // Skip items not in the selected month
+                }
+
+                if (
+                    !acc.find((el) => el.category_name === item.category_name)
+                ) {
+                    acc.push({
+                        category_name: item.category_name,
+                        total: 0,
+                    });
+                }
+
+                const index = acc.findIndex(
+                    (el) => el.category_name === item.category_name
+                );
+
+                acc[index].total += item.sum;
+
+                return acc;
+            },
+            [] as { category_name: string; total: number }[]
         );
 
-
-        if(item.type === 'expense') acc[index].total += item.sum;
-
-        return acc;
-    }, []);
-
-    return percentagesPerCategory.sort((a, b) => {
-        if (a.category_name < b.category_name) {
-            return -1;
-        }
-        if (a.category_name > b.category_name) {
-            return 1;
-        }
-        return 0;
-    }).map(item => item.total);
+        return percentagesPerCategory
+            .sort((a, b) => {
+                if (a.category_name < b.category_name) {
+                    return -1;
+                }
+                if (a.category_name > b.category_name) {
+                    return 1;
+                }
+                return 0;
+            })
+    }
+    return [];
 });
 
 console.log(computedPercentages.value);
 
 const totalSpent = computed(() => {
-    return computedPercentages.value.reduce((acc, item) => acc + item, 0);
+    return computedPercentages.value.reduce((acc, item) => acc + item.total, 0);
 });
 
 

@@ -1,6 +1,11 @@
 <template>
     <div class="flex flex-col gap-3">
-        <UTable sticky :data="tableData" class="w-full h-38" />
+        <UTable
+            v-if="transaction"
+            sticky
+            :data="transaction"
+            class="w-full h-96"
+        />
 
         <UModal v-model:open="isOpen">
             <UButton class="font-bold py-2 px-4 rounded-lg hover:bg-green-500">
@@ -8,7 +13,9 @@
             </UButton>
 
             <template #content>
-                <div class="flex flex-col gap-4 justify-center items-center p-4">
+                <div
+                    class="flex flex-col gap-4 justify-center items-center p-4"
+                >
                     <h2 class="text-center text-3xl font-bold">
                         Transaktion hinzufügen
                     </h2>
@@ -23,16 +30,28 @@
                         @submit="addTransaction"
                     >
                         <UFormField label="Amount" name="amount">
-                            <UInputNumber  v-model="selectedAmount" :min="1"/>
+                            <UInputNumber v-model="selectedAmount" :min="1" />
                         </UFormField>
                         <UFormField label="Type" name="type">
-                           <USelect v-model="selectedType" :items="selectTypes" class="w-full" />
+                            <USelect
+                                v-model="selectedType"
+                                :items="selectTypes"
+                                class="w-full"
+                            />
                         </UFormField>
                         <UFormField label="Category" name="category">
-                           <USelect v-model="selectedCategory" :items="selectOptions" class="w-full" />
+                            <USelect
+                                v-model="selectedCategory"
+                                :items="selectOptions"
+                                class="w-full"
+                            />
                         </UFormField>
                         <UFormField label="Date" name="date">
-                            <UInput v-model="pickedDate" type="date" class="w-full"/>
+                            <UInput
+                                v-model="pickedDate"
+                                type="date"
+                                class="w-full"
+                            />
                         </UFormField>
                         <UButton type="submit"> Submit </UButton>
                     </UForm>
@@ -43,10 +62,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Database } from '~/types/supabase';
-
-const user = useSupabaseUser();
-const supabase = useSupabaseClient<Database>();
+import type { Transaction } from '~/interfaces/tables/transaction';
+import type { Category } from '~/interfaces/tables/category';
 
 const selectedCategory = ref<string | undefined>(undefined);
 const selectedAmount = ref(0);
@@ -59,56 +76,73 @@ const selectTypes = [
     { label: 'Expense', value: 'expense' },
 ];
 
-const { data: sbData } = await supabase
-    .from('transaction')
-    .select('*')
-    .eq('user_id', user!.value!.id);
+const store = useUserStore();
 
-const tableData = computed(() => {
-    if (!sbData) return [];
+const { data: transaction, error } = await useFetch<Transaction[]>(
+    `${useRuntimeConfig().public.apiBaseUrl}/table`,
+    {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${store.jwt}`,
+            'x-refresh-token': store.refreshToken,
+        },
+        body: {
+            tableName: 'transaction',
+            selectedColumns: ['date', 'type', 'amount'],
+        },
+    }
+);
 
-    return sbData.map((item) => ({
-        date: item.date,
-        type: item.type,
-        amount: `${item.amount}€`,
-    }));
+
+const { data: categories } = await await useFetch<
+    Category[]
+>(`${useRuntimeConfig().public.apiBaseUrl}/table`, {
+    method: 'POST',
+    headers: {
+        Authorization: `Bearer ${store.jwt}`,
+        'x-refresh-token': store.refreshToken,
+    },
+    body: {
+        tableName: 'category',
+        selectedColumns: ['category_id', 'name'],
+    },
 });
 
-const {data: categories} = await supabase
-    .from('category')
-    .select('*');
-
- const selectOptions = categories?.map((item) => ({
-    label: item.name,
-    value: item.category_id,
-}));
+const selectOptions = computed(() => {
+    if (categories.value) {
+        return categories.value.map((category) => ({
+            label: category.name,
+            value: category.category_id,
+        }));
+    }
+    return [];
+});
 
 const addTransaction = async () => {
-    const { data } = await supabase
-        .from('account')
-        .select('*')
-        .eq('user_id', user!.value!.id);
 
-    if (data) {
-
-        console.log(data);
-
-        const resp = await supabase.from('transaction').insert({
-            user_id: user!.value!.id,
-            account_id: data[0].account_id,
-            category_id: selectedCategory.value,
-            amount: selectedAmount.value,
-            date: pickedDate.value,
-            type: selectedType.value,
-        });
-
-        if(resp) {
-            console.log('Transaction added successfully');
-            isOpen.value = false; // Close the modal after adding the transaction
-
-        } else {
-            console.error('Error adding transaction:', resp);
+    const response = await $fetch(
+        `${useRuntimeConfig().public.apiBaseUrl}/transactions`,
+        {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${store.jwt}`,
+                'x-refresh-token': store.refreshToken,
+            },
+            body: {
+                user_id: store.user.id,
+                category_id: selectedCategory.value,
+                amount: selectedAmount.value,
+                date: pickedDate.value,
+                type: selectedType.value,
+            }
         }
+    );
+
+    if(response) {
+        console.log('Transaction added successfully');
+        isOpen.value = false; // Close the modal after adding the transaction
+    } else {
+        console.error('Error adding transaction:', response);
     }
 };
 </script>
