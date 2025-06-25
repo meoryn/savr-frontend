@@ -43,7 +43,7 @@
 
 import type { Category } from '~/interfaces/tables/category';
 
-const selectedAmount = ref(0);
+
 const isOpen = ref<boolean>(false);
 
 const store = useUserStore();
@@ -74,8 +74,8 @@ const selectableCategories = computed(() => {
     return [];
 });
 
-const { data: monthlyLimit} = await useFetch<{sum: number}[]>(
-    `${useRuntimeConfig().public.apiBaseUrl}/table`,
+const { data: monthlyLimit, error: monthlyLimitError} = await useFetch<{maximum: number}[]>(
+    `${useRuntimeConfig().public.apiBaseUrl}/getMonthlyLimit`,
     {
         method: 'POST',
         headers: {
@@ -84,15 +84,23 @@ const { data: monthlyLimit} = await useFetch<{sum: number}[]>(
         },
         body: {
             user_id: store.user.id,
-            category_name: selectableCategories.value[0]?.value,
+            category_id: selectableCategories.value[0]?.value,
         },
     }
 );
 
+if(monthlyLimitError.value) {
+    console.error('Error fetching monthly limit:', monthlyLimitError.value);
+}
+
+const selectedAmount = ref(monthlyLimit.value ? monthlyLimit.value[0].maximum : 0);
+
+console.log(monthlyLimit.value);
+
 
 const selectedCategory = ref<string | undefined>(selectableCategories.value[0]?.value);
 
-const editLimit = async (event: FormSubmitEvent<Schema>) => {
+const editLimit = async () => {
 
     const response = await $fetch(`${useRuntimeConfig().public.apiBaseUrl}/monthly_limit`, {
         method: 'POST',
@@ -102,8 +110,8 @@ const editLimit = async (event: FormSubmitEvent<Schema>) => {
         },
         body: {
             user_id: store.user.id,
-            category_id: event.data.selectedCategory,
-            maximum: event.data.selectedAmount,
+            category_id: selectedCategory.value,
+            maximum: selectedAmount.value,
         },
     });
 
