@@ -25,6 +25,7 @@ const store = useUserStore();
 const {data: categoriesedTransactions} = await useFetch<MonthlyReportEntry[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/monthlyReport`,
     {
+        key: `monthlyReport-${store.user?.id}`,
         method: 'POST',
         headers: {
             Authorization: `Bearer ${store.jwt}`,

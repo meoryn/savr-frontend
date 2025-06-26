@@ -34,6 +34,7 @@ const store = useUserStore();
 const { data: categories } = await useFetch<Category[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/table`,
     {
+        key: `categories-${store.user?.id}`,
         method: 'POST',
         headers: {
             Authorization: `Bearer ${store.jwt}`,
@@ -63,6 +64,7 @@ const selectedCategory = ref<string | undefined>(
 const { data: monthlyLimit, error: monthlyLimitError } = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/getMonthlyLimit`,
     {
+        key: `get-monthly-limit-${store.user?.id}`,
         method: 'POST',
         headers: {
             Authorization: `Bearer ${store.jwt}`,
@@ -83,6 +85,7 @@ if (monthlyLimitError.value) {
 const { data: monthlySpending } = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/monthlySpendings`,
     {
+        key: `monthly-spending-${store.user?.id}`,
         method: 'POST',
         headers: {
             Authorization: `Bearer ${store.jwt}`,

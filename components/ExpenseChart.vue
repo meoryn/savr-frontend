@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col items-center justify-center gap-8">
+    <div v-if="selectedCategory" class="flex flex-col items-center justify-center gap-8">
         <div class="flex items-center gap-4">
             <span class="text-md font-bold">Ausgewählte Kategorie:</span>
             <USelect v-model="selectedCategory" :items="fetchedCategories" />
@@ -32,6 +32,7 @@ const categories: Ref<Record<string, BulletLegendItemInterface>> = ref({
 const { data: usedCategories } = await useFetch<{ category_name: string }[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/usedCategories`,
     {
+        key: `usedCategories-${store.user?.id}`,
         method: 'POST',
         headers: {
             Authorization: `Bearer ${store.jwt}`,
@@ -56,7 +57,7 @@ const fetchedCategories = computed(() => {
     return [];
 });
 
-const selectedCategory = ref<string | undefined>(fetchedCategories.value[0].value);
+const selectedCategory = ref<string | undefined>(fetchedCategories.value && fetchedCategories.value[0]  ? fetchedCategories.value[0].value : undefined);
 
 watch(selectedCategory, (newValue) => {
     if (newValue) {
@@ -67,8 +68,8 @@ watch(selectedCategory, (newValue) => {
 const { data: expenses, error } = await useFetch<MonthlyReportEntry[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/expenses`,
     {
+        key: `expenses-${store.user?.id}-${selectedCategory.value}`,
         method: 'POST',
-
         headers: {
             Authorization: `Bearer ${store.jwt}`,
             'x-refresh-token': store.refreshToken,

@@ -81,6 +81,7 @@ const store = useUserStore();
 const { data: transaction, error } = await useFetch<Transaction[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/table`,
     {
+        key: `transactions-${store.user?.id}`,
         method: 'POST',
         headers: {
             Authorization: `Bearer ${store.jwt}`,
@@ -97,6 +98,7 @@ const { data: transaction, error } = await useFetch<Transaction[]>(
 const { data: categories } = await await useFetch<
     Category[]
 >(`${useRuntimeConfig().public.apiBaseUrl}/table`, {
+    key: `categories-selection-${store.user?.id}`,
     method: 'POST',
     headers: {
         Authorization: `Bearer ${store.jwt}`,

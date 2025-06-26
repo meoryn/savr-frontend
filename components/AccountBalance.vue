@@ -27,6 +27,7 @@ const store = useUserStore();
 const { data: accountBalance, error } = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/balance`,
     {
+        key: `account-balance-${store.user?.id}`,
         method: 'POST',
         headers: {
             Authorization: `Bearer ${store.jwt}`,

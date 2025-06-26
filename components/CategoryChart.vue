@@ -38,6 +38,7 @@ const colors = [
 const { data: availableMonths } = await useFetch<{transaction_date: string}[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/availableMonths`,
     {
+        key: `availableMonths-${store.user?.id}`,
         method: 'POST',
         headers: {
             Authorization: `Bearer ${store.jwt}`,
@@ -62,13 +63,14 @@ const selectableMonths = computed(() => {
 const { data: categoriesedTransactions } = await useFetch<MonthlyReportEntry[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/monthlyReport`,
     {
+        key: `monthlyReport-${store.user?.id}`,
         method: 'POST',
         headers: {
             Authorization: `Bearer ${store.jwt}`,
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            userId: store.user?.id,
+            userId: store.user,
         },
     }
 );
