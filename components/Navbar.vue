@@ -11,17 +11,17 @@
         >
             <div class="flex flex-row gap-4">
                 <NuxtLink
-                    class="text-xl font-bold cursor-pointer hover:text-green-300"
+                    class="text-xl font-bold cursor-pointer hover:text-primary-400"
                     to="/dashboard"
                     >Dashboard</NuxtLink
                 >
                 <NuxtLink
-                    class="text-xl font-bold cursor-pointer hover:text-green-300"
+                    class="text-xl font-bold cursor-pointer hover:text-primary-400"
                     to="/profile"
                     >Profile</NuxtLink
                 >
                 <NuxtLink
-                    class="text-xl font-bold cursor-pointer hover:text-green-300"
+                    class="text-xl font-bold cursor-pointer hover:text-primary-400"
                     @click="logoutUser"
                     >Logout</NuxtLink
                 >
@@ -46,11 +46,13 @@
 
 <script setup lang="ts">
 const store = useUserStore();
+const toast = useToast();
 
 const logoutUser = async () => {
-    
-    const toast = useToast();
 
+ 
+try {
+    
     const data = await $fetch(
         `${useRuntimeConfig().public.apiBaseUrl}/logout`,
         {
@@ -67,13 +69,16 @@ const logoutUser = async () => {
         store.jwt = '';
         store.refreshToken = '';
         navigateTo('/');
-    } else {
-        toast.add({
+    }
+} catch (error) {
+      toast.add({
             title: 'Error Logging Out',
             description:
-                'An error occurred while trying to log out. Please try again later.',
+                error.error as string,
             color: 'error',
         });
-    }
+}
+
+   
 };
 </script>
