@@ -5,7 +5,7 @@
         <h2 class="text-xl font-bold mb-4">Monatliches Limit</h2>
 
         <p
-        v-if="monthlyLimit && monthlySpending"
+            v-if="monthlyLimit && monthlySpending"
             class="py-4 text-3xl font-bold"
         >
             <span
@@ -44,6 +44,9 @@ const { data: categories } = await useFetch<Category[]>(
             user_id: store.user?.id,
             tableName: 'category',
         },
+        onResponse({ response }) {
+            adjustTokens(response.headers);
+        },
     }
 );
 
@@ -81,7 +84,6 @@ if (monthlyLimitError.value) {
     console.error('Error fetching monthly limit:', monthlyLimitError.value);
 }
 
-
 const { data: monthlySpending } = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/monthlySpendings`,
     {
@@ -97,5 +99,4 @@ const { data: monthlySpending } = await useFetch<number>(
         },
     }
 );
-
 </script>

@@ -35,6 +35,8 @@ const colors = [
     '#10b981', // Emerald
 ];
 
+
+
 const { data: availableMonths } = await useFetch<{transaction_date: string}[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/availableMonths`,
     {
@@ -46,6 +48,9 @@ const { data: availableMonths } = await useFetch<{transaction_date: string}[]>(
         },
         body: {
             user_id: store.user?.id,
+        },
+        onResponse({ response }) {
+            adjustTokens(response.headers);
         },
     }
 );
@@ -70,7 +75,10 @@ const { data: categoriesedTransactions } = await useFetch<MonthlyReportEntry[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            userId: store.user,
+            user_id: store.user?.id,
+        },
+        onResponse({ response }) {
+            adjustTokens(response.headers);
         },
     }
 );

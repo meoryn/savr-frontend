@@ -42,6 +42,9 @@ const { data: usedCategories } = await useFetch<{ category_name: string }[]>(
             user_id: store.user?.id,
             type: 'expense',
         },
+        onResponse({response}) {
+            newHeader.value = response.headers;
+        }
     }
 );
 
@@ -75,7 +78,7 @@ const { data: expenses, error } = await useFetch<MonthlyReportEntry[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            userId: store.user?.id,
+            user_id: store.user?.id,
             category_name: selectedCategory,
         },
     }

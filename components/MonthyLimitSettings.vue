@@ -48,7 +48,6 @@ const isOpen = ref<boolean>(false);
 
 const store = useUserStore();
 
-
 const { data: categories } = await useFetch<Category[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/table`,
     {
@@ -62,6 +61,9 @@ const { data: categories } = await useFetch<Category[]>(
             user_id: store.user?.id,
             tableName: 'category',
         },
+        onResponse({response}) {
+            adjustTokens(response.headers);
+        }
     }
 );
 

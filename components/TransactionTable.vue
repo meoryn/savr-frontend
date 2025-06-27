@@ -91,6 +91,9 @@ const { data: transaction, error } = await useFetch<Transaction[]>(
             tableName: 'transaction',
             selectedColumns: ['date', 'type', 'amount'],
         },
+        onResponse({response}) {
+            adjustTokens(response.headers);
+        }
     }
 );
 
@@ -108,6 +111,9 @@ const { data: categories } = await await useFetch<
         tableName: 'category',
         selectedColumns: ['category_id', 'name'],
     },
+    onResponse({response}) {
+            adjustTokens(response.headers);
+        }
 });
 
 const selectOptions = computed(() => {

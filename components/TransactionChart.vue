@@ -32,7 +32,7 @@ const {data: categoriesedTransactions} = await useFetch<MonthlyReportEntry[]>(
             'x-refresh-token': store.refreshToken,
         },
         body: {
-            userId: store.user?.id,
+            user_id: store.user?.id,
         },
     }
 );
