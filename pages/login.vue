@@ -71,7 +71,7 @@ const loginUser = async () => {
     } catch (error) {
         toast.add({
             title: 'Error',
-            description: error as string,
+            description: error.error || 'Problem occured while logging in. Please check your credentials.',
             color: 'error',
         });
     }
