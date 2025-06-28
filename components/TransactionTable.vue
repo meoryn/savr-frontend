@@ -149,6 +149,7 @@ const addTransaction = async () => {
     if(response) {
         console.log('Transaction added successfully');
         isOpen.value = false; // Close the modal after adding the transaction
+         await refreshNuxtData() // refresh all Calls
     } else {
         console.error('Error adding transaction:', response);
     }
