@@ -13,7 +13,7 @@
     >
         <div class="absolute text-center">
             <div class="font-semibold">{{ totalSpent }} €</div>
-            <div class="text-muted">Totally spent</div>
+            <div class="text-muted">Gesamtausgaben</div>
         </div>
     </DonutChart>
    </div>
