@@ -38,8 +38,8 @@ const {data: categoriesedTransactions} = await useFetch<MonthlyReportEntry[]>(
 );
 
 const RevenueCategoriesMultple = {
-    income: { name: 'Income', color: '#3b82f6' },
-    expense: { name: 'Expense', color: '#22c55e' },
+    income: { name: 'Einnahmen', color: '#3b82f6' },
+    expense: { name: 'Ausgaben', color: '#22c55e' },
 };
 
 const xFormatter = (i: number): string => `${calcSavings.value[i]?.month}`;

@@ -21,17 +21,17 @@
                         }"
                         @submit="editLimit"
                     >   
-                        <UFormField label="Category" name="category">
+                        <UFormField label="Kategorie" name="category">
                             <USelect
                                 v-model="selectedCategory"
                                 :items="selectableCategories"
                                 class="w-full"
                             />
                         </UFormField>
-                        <UFormField label="Amount" name="amount">
-                            <UInputNumber v-model="selectedAmount" :min="1" />
+                        <UFormField label="Neues Limit" name="amount">
+                            <UInputNumber v-model="selectedAmount" :min="0" />
                         </UFormField>
-                        <UButton type="submit"> Edit </UButton>
+                        <UButton type="submit"> Bearbeiten </UButton>
                     </UForm>
                 </div>
             </template>
@@ -80,27 +80,7 @@ const selectableCategories = computed(() => {
 
 const selectedCategory = ref<string | undefined>(selectableCategories.value[0]?.value);
 
-const { data: monthlyLimit, error: monthlyLimitError} = await useFetch<number>(
-    `${useRuntimeConfig().public.apiBaseUrl}/getMonthlyLimit`,
-    {
-        key: `get-monthly-limit-${store.user?.id}-${selectedCategory.value}`,
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${store.jwt}`,
-            'x-refresh-token': store.refreshToken,
-        },
-        body: {
-            user_id: store.user?.id,
-            category_name: selectedCategory,
-        },
-    }
-);
-
-if(monthlyLimitError.value) {
-    console.error('Error fetching monthly limit:', monthlyLimitError.value);
-}
-
-const selectedAmount = ref(monthlyLimit.value ? monthlyLimit.value : 0);
+const selectedAmount = ref(0);
 
 
 const editLimit = async () => {
@@ -125,6 +105,7 @@ const editLimit = async () => {
                 color: 'success', 
         })
         isOpen.value = false; // Close the modal after adding the transaction
+        await refreshNuxtData();
     } else {
         console.error('Error adding transaction:', response);
     }

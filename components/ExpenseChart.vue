@@ -10,8 +10,8 @@
         <AreaChart
             :data="AreaChartData"
             :height="300"
-            y-label="Value"
-            x-label="Month"
+            y-label="Betrag"
+            x-label="Monat"
             :categories="categories"
             :y-num-ticks="4"
             :x-num-ticks="
