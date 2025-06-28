@@ -77,8 +77,9 @@ const selectTypes = [
 ];
 
 const store = useUserStore();
+const toast = useToast();
 
-const { data: transaction, error } = await useFetch<Transaction[]>(
+const { data: transaction } = await useFetch<Transaction[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/table`,
     {
         key: `transactions-${store.user?.id}`,
@@ -91,30 +92,30 @@ const { data: transaction, error } = await useFetch<Transaction[]>(
             tableName: 'transaction',
             selectedColumns: ['date', 'type', 'amount'],
         },
-        onResponse({response}) {
+        onResponse({ response }) {
             adjustTokens(response.headers);
-        }
+        },
     }
 );
 
-
-const { data: categories } = await await useFetch<
-    Category[]
->(`${useRuntimeConfig().public.apiBaseUrl}/table`, {
-    key: `categories-selection-${store.user?.id}`,
-    method: 'POST',
-    headers: {
-        Authorization: `Bearer ${store.jwt}`,
-        'x-refresh-token': store.refreshToken,
-    },
-    body: {
-        tableName: 'category',
-        selectedColumns: ['category_id', 'name'],
-    },
-    onResponse({response}) {
+const { data: categories } = await await useFetch<Category[]>(
+    `${useRuntimeConfig().public.apiBaseUrl}/table`,
+    {
+        key: `categories-selection-${store.user?.id}`,
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${store.jwt}`,
+            'x-refresh-token': store.refreshToken,
+        },
+        body: {
+            tableName: 'category',
+            selectedColumns: ['category_id', 'name'],
+        },
+        onResponse({ response }) {
             adjustTokens(response.headers);
-        }
-});
+        },
+    }
+);
 
 const selectOptions = computed(() => {
     if (categories.value) {
@@ -127,7 +128,6 @@ const selectOptions = computed(() => {
 });
 
 const addTransaction = async () => {
-
     const response = await $fetch(
         `${useRuntimeConfig().public.apiBaseUrl}/transactions`,
         {
@@ -142,14 +142,18 @@ const addTransaction = async () => {
                 amount: selectedAmount.value,
                 date: pickedDate.value,
                 type: selectedType.value,
-            }
+            },
         }
     );
 
-    if(response) {
-        console.log('Transaction added successfully');
+    if (response) {
+        toast.add({
+                title: 'Success',
+                description: 'Transaktion wurde erfolgreich eingetragen!',
+                color: 'success', 
+            })
         isOpen.value = false; // Close the modal after adding the transaction
-         await refreshNuxtData() // refresh all Calls
+        await refreshNuxtData(); // refresh all Calls
     } else {
         console.error('Error adding transaction:', response);
     }

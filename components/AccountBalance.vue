@@ -20,7 +20,7 @@
 <script setup lang="ts">
 const store = useUserStore();
 
-const { data: accountBalance, error } = await useFetch<number>(
+const { data: accountBalance } = await useFetch<number>(
     `${useRuntimeConfig().public.apiBaseUrl}/balance`,
     {
         key: `account-balance-${store.user?.id}`,

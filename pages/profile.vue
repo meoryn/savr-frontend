@@ -72,8 +72,6 @@ type Schema = z.output<typeof schema>;
         }   
     });
 
-    console.log(profile);
-
 const state = reactive<Partial<Schema>>({
     username: profile?.value.username,
     firstName: profile?.value.full_name?.split(' ')[0],

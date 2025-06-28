@@ -47,6 +47,7 @@ import type { Category } from '~/interfaces/tables/category';
 const isOpen = ref<boolean>(false);
 
 const store = useUserStore();
+const toast = useToast();
 
 const { data: categories } = await useFetch<Category[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/table`,
@@ -118,8 +119,11 @@ const editLimit = async () => {
     });
 
     if(response) {
-        //Add toast here
-        console.log('Transaction added successfully');
+        toast.add({
+                title: 'Success',
+                description: 'Limit wurde erfolgreich angepasst!',
+                color: 'success', 
+        })
         isOpen.value = false; // Close the modal after adding the transaction
     } else {
         console.error('Error adding transaction:', response);

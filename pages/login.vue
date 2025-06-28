@@ -47,23 +47,25 @@ const toast = useToast();
 
 const loginUser = async () => {
     try {
-        const data = await $fetch<AuthenticatedUser>(`${config.public.apiBaseUrl}/login`, {
-            method: 'POST',
-            body: {
-                email: state.email,
-                password: state.password,
-            },
-        });
+        const data = await $fetch<AuthenticatedUser>(
+            `${config.public.apiBaseUrl}/login`,
+            {
+                method: 'POST',
+                body: {
+                    email: state.email,
+                    password: state.password,
+                },
+            }
+        );
 
         if (data) {
-            console.log(data);
             store.user = data.user;
             store.jwt = data.session.access_token;
             store.refreshToken = data.session.refresh_token;
 
             toast.add({
                 title: 'Success',
-                description: 'Login successful',
+                description: 'Erfolgreich eingeloggt!',
                 color: 'success',
             });
             navigateTo('/');
@@ -71,7 +73,9 @@ const loginUser = async () => {
     } catch (error) {
         toast.add({
             title: 'Error',
-            description: error.error || 'Problem occured while logging in. Please check your credentials.',
+            description:
+                error.error ||
+                'Es ist wöhrend des Anmeldevorgangs ein Problem aufgetreten. Bitte überprüfe deine Daten',
             color: 'error',
         });
     }

@@ -27,9 +27,6 @@
 <script setup lang="ts">
 const store = useUserStore();
 
-//TODO: Create interfaces for all backend responses
-//TODO: Add keys to fetches based on userID key
-
 if (!(store.user && store.jwt)) {
     navigateTo('/');
 }

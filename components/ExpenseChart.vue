@@ -1,5 +1,8 @@
 <template>
-    <div v-if="selectedCategory" class="flex flex-col items-center justify-center gap-8">
+    <div
+        v-if="selectedCategory"
+        class="flex flex-col items-center justify-center gap-8"
+    >
         <div class="flex items-center gap-4">
             <span class="text-md font-bold">Ausgewählte Kategorie:</span>
             <USelect v-model="selectedCategory" :items="fetchedCategories" />
@@ -11,7 +14,9 @@
             x-label="Month"
             :categories="categories"
             :y-num-ticks="4"
-            :x-num-ticks="AreaChartData.length > 13 ? 12 : AreaChartData.length - 1"
+            :x-num-ticks="
+                AreaChartData.length > 13 ? 12 : AreaChartData.length - 1
+            "
             :y-grid-line="true"
             :hide-legend="true"
             :x-formatter="xFormatter"
@@ -42,33 +47,41 @@ const { data: usedCategories } = await useFetch<{ category_name: string }[]>(
             user_id: store.user?.id,
             type: 'expense',
         },
-        onResponse({response}) {
-            newHeader.value = response.headers;
-        }
+        onResponse({ response }) {
+            adjustTokens(response.headers);
+        },
     }
 );
 
 const fetchedCategories = computed(() => {
     if (usedCategories.value) {
         return usedCategories.value.map((item) => {
-         return {
-            label: item.category_name,
-            value: item.category_name,
-         }
+            return {
+                label: item.category_name,
+                value: item.category_name,
+            };
         });
     }
     return [];
 });
 
-const selectedCategory = ref<string | undefined>(fetchedCategories.value && fetchedCategories.value[0]  ? fetchedCategories.value[0].value : undefined);
+const selectedCategory = ref<string | undefined>(
+    fetchedCategories.value && fetchedCategories.value[0]
+        ? fetchedCategories.value[0].value
+        : undefined
+);
 
-watch(selectedCategory, (newValue) => {
-    if (newValue) {
-        categories.value.expense.name = newValue;
-    }
-}, { immediate: true });
+watch(
+    selectedCategory,
+    (newValue) => {
+        if (newValue) {
+            categories.value.expense.name = newValue;
+        }
+    },
+    { immediate: true }
+);
 
-const { data: expenses, error } = await useFetch<MonthlyReportEntry[]>(
+const { data: expenses } = await useFetch<MonthlyReportEntry[]>(
     `${useRuntimeConfig().public.apiBaseUrl}/expenses`,
     {
         key: `expenses-${store.user?.id}-${selectedCategory.value}`,
@@ -80,6 +93,9 @@ const { data: expenses, error } = await useFetch<MonthlyReportEntry[]>(
         body: {
             user_id: store.user?.id,
             category_name: selectedCategory,
+        },
+        onResponse({ response }) {
+            adjustTokens(response.headers);
         },
     }
 );
